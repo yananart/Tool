@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration debug="true" scan="true" scanPeriod="1 seconds">
+    <!-- 用于指定logger上下文名称，默认为default -->
+    <contextName>logback</contextName>
+
+    <property name="FILE_PATH" value="${user.home}/.Yananart/logs"/>
+    <property name="LOF_PATTERN" value="%d{HH:mm:ss.SSS}[%thread][%-5level]%logger{0}: %msg%n"/>
+
+    <!--
+        TurboFilter类型过滤器有三种：这里使用的是DuplicateMessageFilter
+            子标签<cacheSize>：表示内部缓存对旧消息引用的个数上限
+            子标签<allowedRepetitions>：表示允许消息出现的重复次数上限，超过次数上限的记录请求将被丢弃
+    -->
+    <turboFilter class="ch.qos.logback.classic.turbo.DuplicateMessageFilter">
+        <allowedRepetitions>1</allowedRepetitions>
+        <cacheSize>20</cacheSize>
+    </turboFilter>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOF_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${FILE_PATH}/Tool_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOF_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- level属性：指定根logger的分配级别 -->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+
+    <!-- TODO H5JavaSdk 的日志可以单独配置 -->
+    <!-- name:指定logger名称；level：指定logger的分配级别；additivity(非必须，默认为true)：设置appender叠加性 -->
+    <logger name="com.hundsun.message" level="info" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </logger>
+
+</configuration>

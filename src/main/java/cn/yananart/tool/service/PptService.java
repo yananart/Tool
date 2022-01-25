@@ -7,16 +7,16 @@ import cn.hutool.core.util.StrUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.sl.usermodel.PictureData;
-import org.apache.poi.xslf.usermodel.XMLSlideShow;
-import org.apache.poi.xslf.usermodel.XSLFPictureData;
-import org.apache.poi.xslf.usermodel.XSLFPictureShape;
-import org.apache.poi.xslf.usermodel.XSLFSlide;
+import org.apache.poi.util.IOUtils;
+import org.apache.poi.xslf.usermodel.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.List;
 
@@ -29,6 +29,16 @@ import java.util.List;
 @Slf4j
 public class PptService {
 
+    /**
+     * 幻灯片高度
+     */
+    private static final int HEIGHT = 1080;
+
+    /**
+     * 幻灯片宽度
+     */
+    private static final int WIDTH = 1920;
+
     private static final PptService INSTANCE = new PptService();
 
     public static PptService getInstance() {
@@ -36,6 +46,8 @@ public class PptService {
     }
 
     private PptService() {
+        // TODO 直接设置了最大 建议优化 压缩图片
+        IOUtils.setByteArrayMaxOverride(Integer.MAX_VALUE);
     }
 
     @Setter
@@ -61,7 +73,7 @@ public class PptService {
         printLog("开始进行PPT生成逻辑");
         // ppt文件对象
         XMLSlideShow ppt = new XMLSlideShow();
-        ppt.setPageSize(new Dimension(1920, 1080));
+        ppt.setPageSize(new Dimension(WIDTH, HEIGHT));
 
         // 遍历所有文件 获取映射关系
         for (String fileName : fileNameList) {
@@ -125,13 +137,46 @@ public class PptService {
             log.info(message);
             printLog(message);
 
+            // 创建幻灯片
             XSLFSlide slide = ppt.createSlide();
-            int num = picDataList.size();
 
+            // 文本框 TODO 优化
+            XSLFTextBox textBox = slide.createTextBox();
+            textBox.setAnchor(new Rectangle(60, 50, 1800, 64));
+            XSLFTextParagraph textParagraph = textBox.addNewTextParagraph();
+            XSLFTextRun textRun = textParagraph.addNewTextRun();
+            textRun.setBold(true);
+            textRun.setText(name);
+            textRun.setFontSize(64.);
+
+            // 图片处理
+            int num = picDataList.size();
+            // TODO if num>3 not support
+
+            // 计算图片长宽
+            double widthInAvg = BigDecimal.valueOf((WIDTH - 120) - (num - 1) * 60L)
+                    .divide(BigDecimal.valueOf(num), RoundingMode.HALF_UP)
+                    .setScale(2, RoundingMode.HALF_UP)
+                    .doubleValue();
+            // 按顺序添加到幻灯片中
+            // TODO 2~3张这个逻辑是可以的 1张就太大了
+            // TODO 4张及以上暂时不考虑 4~6张的后续可以做一些
             for (int index = 0; index < num; index++) {
                 XSLFPictureData pictureData = picDataList.get(index);
                 XSLFPictureShape pictureShape = slide.createPicture(pictureData);
-                pictureShape.setAnchor(new Rectangle(100 * (index + 1) + index * 300, 300, 300, 200));
+                double height = pictureData.getImageDimension().getHeight();
+                double width = pictureData.getImageDimension().getWidth();
+
+                height = BigDecimal.valueOf(height)
+                        .multiply(BigDecimal.valueOf(widthInAvg))
+                        .divide(BigDecimal.valueOf(width), RoundingMode.HALF_UP)
+                        .setScale(2, RoundingMode.HALF_UP)
+                        .doubleValue();
+
+                int x = 60 * (index + 1) + (int) (index * widthInAvg);
+                int y = (int) (HEIGHT / 2 - height / 2) + 50;
+
+                pictureShape.setAnchor(new Rectangle(x, y, (int) widthInAvg, (int) height));
             }
         }
 

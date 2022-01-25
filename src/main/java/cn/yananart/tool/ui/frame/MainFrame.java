@@ -35,6 +35,7 @@ public class MainFrame extends JFrame {
     public void init() {
         this.setName(Constants.APP_NAME);
         this.setTitle(Constants.APP_NAME);
+        // TODO 不要使用这个动作 添加一个监听器来实现 在关闭程序前要保持输入项
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setMinimumSize(new Dimension(1000, 700));
 

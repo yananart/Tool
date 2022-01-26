@@ -4,14 +4,17 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.yananart.tool.utils.PictureUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.poi.sl.usermodel.PictureData;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xslf.usermodel.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,6 +47,11 @@ public class PptService {
      */
     private static final int PIC_MAX_HEIGHT = 800;
 
+    /**
+     * 图片最宽宽度
+     */
+    private static final int PIC_MAX_WIDTH = 1000;
+
     private static final PptService INSTANCE = new PptService();
 
     public static PptService getInstance() {
@@ -62,13 +70,18 @@ public class PptService {
     /**
      * 生成PPT
      *
-     * @param picturePath 图片文件路径
-     * @param outputPath  输出文件路径
-     * @param pptFileName ppt文件名
-     * @param splitTag    文件名称分隔符
+     * @param picturePath      图片文件路径
+     * @param outputPath       输出文件路径
+     * @param pptFileName      ppt文件名
+     * @param splitTag         文件名称分隔符
+     * @param enableReduceSize 启用图片压缩
      * @throws IOException IO异常
      */
-    public void makePicturePpt(String picturePath, String outputPath, String pptFileName, String splitTag) throws IOException {
+    public void makePicturePpt(String picturePath,
+                               String outputPath,
+                               String pptFileName,
+                               String splitTag,
+                               boolean enableReduceSize) throws IOException {
         // 所有文件
         List<String> fileNameList = FileUtil.listFileNames(picturePath);
         CollUtil.sortByPinyin(fileNameList);
@@ -102,23 +115,49 @@ public class PptService {
 
             List<XSLFPictureData> picDataList = picFileMap.get(name);
 
+            File file = FileUtil.file(filePath);
+
             String message;
+            XSLFPictureData pictureData;
             switch (fileType) {
                 case "jpg":
                 case "jpeg":
                     message = StrUtil.format("读取到 JPG图片 {} <- {}", name, filePath);
+                    if (enableReduceSize) {
+                        pictureData = ppt.addPicture(resizePicture(file), PictureData.PictureType.JPEG);
+                        message += "，执行压缩";
+                    } else {
+                        pictureData = ppt.addPicture(file, PictureData.PictureType.JPEG);
+                    }
                     log.info(message);
-                    picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.JPEG));
+                    picDataList.add(pictureData);
                     break;
                 case "png":
                     message = StrUtil.format("读取到 PNG图片 {} <- {}", name, filePath);
+                    if (enableReduceSize) {
+                        pictureData = ppt.addPicture(resizePicture(file), PictureData.PictureType.JPEG);
+                        message += "，执行压缩";
+                    } else {
+                        pictureData = ppt.addPicture(file, PictureData.PictureType.PNG);
+                    }
                     log.info(message);
-                    picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.PNG));
+                    picDataList.add(pictureData);
                     break;
                 case "gif":
                     message = StrUtil.format("读取到 GIF图片 {} <- {}", name, filePath);
+                    if (enableReduceSize) {
+                        message += "，GIF图片不执行压缩";
+                    }
                     log.info(message);
                     picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.GIF));
+                    break;
+                case "bmp":
+                    message = StrUtil.format("读取到 BMP图片 {} <- {}", name, filePath);
+                    if (enableReduceSize) {
+                        message += "，BMP图片不执行压缩";
+                    }
+                    log.info(message);
+                    picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.BMP));
                     break;
                 default:
                     message = StrUtil.format("不支持的文件类型 不能识别 {}", filePath);
@@ -159,10 +198,9 @@ public class PptService {
             int num = picDataList.size();
 
             // 计算图片长宽
-            double widthInAvg = BigDecimal.valueOf((WIDTH - 120) - (num - 1) * 60L)
-                    .divide(BigDecimal.valueOf(num), RoundingMode.HALF_UP)
-                    .setScale(2, RoundingMode.HALF_UP)
-                    .doubleValue();
+            double widthInAvg =
+                    BigDecimal.valueOf((WIDTH - 120) - (num - 1) * 60L).divide(BigDecimal.valueOf(num),
+                            RoundingMode.HALF_UP).setScale(2, RoundingMode.HALF_UP).doubleValue();
             // 按顺序添加到幻灯片中
             // 1~3张横着的图这个逻辑都还可以 竖着的图会有点丑
             // TODO 4张及以上暂时不考虑 4~6张的后续可以做一些
@@ -175,27 +213,18 @@ public class PptService {
                 // 调整后的宽度按计算的平均值
                 int adjustWidth = (int) widthInAvg;
                 // 调整后的高度
-                int adjustHeight = BigDecimal.valueOf(height)
-                        .multiply(BigDecimal.valueOf(widthInAvg))
-                        .divide(BigDecimal.valueOf(width), RoundingMode.HALF_UP)
-                        .intValue();
+                int adjustHeight =
+                        BigDecimal.valueOf(height).multiply(BigDecimal.valueOf(widthInAvg)).divide(BigDecimal.valueOf(width), RoundingMode.HALF_UP).intValue();
                 // 如果高度过高
                 if (adjustHeight > PIC_MAX_HEIGHT) {
                     // 再次调整 把高度缩放到800
-                    adjustWidth = BigDecimal.valueOf(adjustWidth)
-                            .multiply(BigDecimal.valueOf(PIC_MAX_HEIGHT))
-                            .divide(BigDecimal.valueOf(adjustHeight), RoundingMode.HALF_UP)
-                            .intValue();
+                    adjustWidth =
+                            BigDecimal.valueOf(adjustWidth).multiply(BigDecimal.valueOf(PIC_MAX_HEIGHT)).divide(BigDecimal.valueOf(adjustHeight), RoundingMode.HALF_UP).intValue();
                     adjustHeight = PIC_MAX_HEIGHT;
                 }
 
-                int x = 60 * (index + 1) +
-                        BigDecimal.valueOf(index + 0.5)
-                                .multiply(BigDecimal.valueOf(widthInAvg))
-                                .subtract(BigDecimal.valueOf(adjustWidth)
-                                        .divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP)
-                                )
-                                .intValue();
+                int x =
+                        60 * (index + 1) + BigDecimal.valueOf(index + 0.5).multiply(BigDecimal.valueOf(widthInAvg)).subtract(BigDecimal.valueOf(adjustWidth).divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP)).intValue();
                 int y = (HEIGHT / 2 - adjustHeight / 2) + 50;
 
                 pictureShape.setAnchor(new Rectangle(x, y, adjustWidth, adjustHeight));
@@ -214,6 +243,18 @@ public class PptService {
 
 
     /**
+     * 修改图片大小
+     *
+     * @param file 文件
+     * @return 二进制数组
+     * @throws IOException IO异常
+     */
+    private byte[] resizePicture(File file) throws IOException {
+        return PictureUtil.resizeAsJpgImage(file, PIC_MAX_HEIGHT, PIC_MAX_WIDTH);
+    }
+
+
+    /**
      * 打印日志
      *
      * @param message message
@@ -226,6 +267,6 @@ public class PptService {
 
     public static void main(String[] args) throws IOException {
         String picPath = "/Users/yananart/Desktop/pic";
-        getInstance().makePicturePpt(picPath, picPath, "test", "-");
+        getInstance().makePicturePpt(picPath, picPath, "test", "-", false);
     }
 }

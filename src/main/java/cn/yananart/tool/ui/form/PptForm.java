@@ -76,6 +76,11 @@ public class PptForm implements ConfigSaveAction {
     private JTextField splitTagField;
 
     /**
+     * 压缩图片
+     */
+    private JCheckBox compressCheckBox;
+
+    /**
      * 文件选择 图片文件夹
      */
     private final JFileChooser pictureChooser = new JFileChooser();
@@ -90,6 +95,7 @@ public class PptForm implements ConfigSaveAction {
     private static final String SET_KEY_OUTPUT_PATH = "outputFolderPath";
     private static final String SET_KEY_PPT_FILENAME = "outputPptFileName";
     private static final String SET_KEY_SPLIT_TAG = "sourceFileSplitTag";
+    private static final String SET_KEY_COMPRESS = "pictureCompress";
 
 
     public PptForm() {
@@ -135,6 +141,8 @@ public class PptForm implements ConfigSaveAction {
         }
         filenameField.setText(configUtil.getPptSetting(SET_KEY_PPT_FILENAME, ""));
         splitTagField.setText(configUtil.getPptSetting(SET_KEY_SPLIT_TAG, "-"));
+
+        compressCheckBox.setSelected(Boolean.parseBoolean(configUtil.getPptSetting(SET_KEY_COMPRESS, "True")));
 
         // 配置保存动作
         configUtil.addSaveAction(this);
@@ -190,6 +198,8 @@ public class PptForm implements ConfigSaveAction {
             // 分隔符号
             final String splitTag = splitTagField.getText().trim();
 
+            boolean compress = compressCheckBox.isSelected();
+
             doActionButton.setEnabled(false);
             loadingPanel.setVisible(true);
 
@@ -203,7 +213,7 @@ public class PptForm implements ConfigSaveAction {
                         messageArea.append("输出文件夹路径不存在，自动创建\n");
                         FileUtil.mkdir(out);
                     }
-                    PptService.getInstance().makePicturePpt(picturePath, out, pptFileName, splitTag);
+                    PptService.getInstance().makePicturePpt(picturePath, out, pptFileName, splitTag, compress);
                 } catch (IOException ioException) {
                     log.warn("IO异常", ioException);
                     messageArea.append(StrUtil.format("文件读写异常 {}\n", ioException.getMessage()));
@@ -225,6 +235,7 @@ public class PptForm implements ConfigSaveAction {
         String outputPath = outputPathField.getText().trim();
         String pptFileName = filenameField.getText().trim();
         String splitTag = splitTagField.getText().trim();
+        boolean compress = compressCheckBox.isSelected();
 
         final ConfigUtil configUtil = ConfigUtil.getInstance();
 
@@ -232,6 +243,7 @@ public class PptForm implements ConfigSaveAction {
         configUtil.setPptSetting(SET_KEY_OUTPUT_PATH, outputPath);
         configUtil.setPptSetting(SET_KEY_PPT_FILENAME, pptFileName);
         configUtil.setPptSetting(SET_KEY_SPLIT_TAG, splitTag);
+        configUtil.setPptSetting(SET_KEY_COMPRESS, String.valueOf(compress));
     }
 
 

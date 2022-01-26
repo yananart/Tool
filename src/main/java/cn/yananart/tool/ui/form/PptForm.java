@@ -1,9 +1,13 @@
 package cn.yananart.tool.ui.form;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileNameUtil;
+import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.yananart.tool.config.ConfigSaveAction;
 import cn.yananart.tool.service.PptService;
-import cn.yananart.tool.utils.ThreadUtil;
+import cn.yananart.tool.utils.ConfigUtil;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -15,13 +19,14 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 
 /**
  * @author yananart
  * @date 2022/1/25
  */
 @Slf4j
-public class PptForm {
+public class PptForm implements ConfigSaveAction {
     @Getter
     private JPanel pptPanel;
 
@@ -80,6 +85,12 @@ public class PptForm {
      */
     private final JFileChooser outputChooser = new JFileChooser();
 
+    /* 配置参数键 */
+    private static final String SET_KEY_PICTURE_PATH = "sourceFolderPath";
+    private static final String SET_KEY_OUTPUT_PATH = "outputFolderPath";
+    private static final String SET_KEY_PPT_FILENAME = "outputPptFileName";
+    private static final String SET_KEY_SPLIT_TAG = "sourceFileSplitTag";
+
 
     public PptForm() {
         pictureChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -93,9 +104,47 @@ public class PptForm {
      * 初始化动作
      */
     private void init() {
+        initSettings();
+
         // 初始化时等待图标不展示
         loadingPanel.setVisible(false);
 
+        PptService.getInstance().setTextArea(messageArea);
+
+        addActionListener();
+    }
+
+
+    /**
+     * 初始化配置
+     */
+    public void initSettings() {
+        final ConfigUtil configUtil = ConfigUtil.getInstance();
+        // 初始化参数
+        String picturePath = configUtil.getPptSetting(SET_KEY_PICTURE_PATH, "");
+        picturePathField.setText(picturePath);
+        if (StrUtil.isNotBlank(picturePath) && FileUtil.exist(picturePath) && FileUtil.isDirectory(picturePath)) {
+            // 必须在UI线程更新
+            SwingUtilities.invokeLater(() -> pictureChooser.setCurrentDirectory(FileUtil.file(picturePath)));
+        }
+        String outputPath = configUtil.getPptSetting(SET_KEY_OUTPUT_PATH, "");
+        outputPathField.setText(outputPath);
+        if (StrUtil.isNotBlank(outputPath) && FileUtil.exist(outputPath) && FileUtil.isDirectory(outputPath)) {
+            // 必须在UI线程更新
+            SwingUtilities.invokeLater(() -> outputChooser.setCurrentDirectory(FileUtil.file(outputPath)));
+        }
+        filenameField.setText(configUtil.getPptSetting(SET_KEY_PPT_FILENAME, ""));
+        splitTagField.setText(configUtil.getPptSetting(SET_KEY_SPLIT_TAG, "-"));
+
+        // 配置保存动作
+        configUtil.addSaveAction(this);
+    }
+
+
+    /**
+     * 添加动作监听
+     */
+    public void addActionListener() {
         selectPicturePath.addActionListener(action -> {
             int status = pictureChooser.showOpenDialog(PptForm.this.pptPanel);
             if (status == JFileChooser.APPROVE_OPTION) {
@@ -127,10 +176,16 @@ public class PptForm {
             // 输出路径
             final String outputPath = outputPathField.getText().trim();
             // 文件名
-            final String pptFileName = filenameField.getText().trim();
-            if (StrUtil.isBlank(pptFileName)) {
-                messageArea.append("输出文件名称为空，请输入\n");
-                return;
+            String pptFileNameTmp = filenameField.getText().trim();
+            final String pptFileName;
+            if (StrUtil.isBlank(pptFileNameTmp)) {
+                pptFileName = DateUtil.format(new Date(), "yyyyMMdd");
+                messageArea.append(StrUtil.format("输出文件名称为空，使用默认文件名[{}]\n", pptFileName));
+            } else if (FileNameUtil.containsInvalid(pptFileNameTmp)) {
+                pptFileName = FileNameUtil.cleanInvalid(pptFileNameTmp);
+                messageArea.append(StrUtil.format("输出文件名称有非法字符，转换名称为[{}]\n", pptFileName));
+            } else {
+                pptFileName = pptFileNameTmp;
             }
             // 分隔符号
             final String splitTag = splitTagField.getText().trim();
@@ -138,7 +193,7 @@ public class PptForm {
             doActionButton.setEnabled(false);
             loadingPanel.setVisible(true);
 
-            ThreadUtil.runOnBack(() -> {
+            ThreadUtil.execute(() -> {
                 try {
                     String out = outputPath;
                     if (StrUtil.isBlank(out)) {
@@ -161,8 +216,22 @@ public class PptForm {
                 loadingPanel.setVisible(false);
             });
         });
+    }
 
-        PptService.getInstance().setTextArea(messageArea);
+
+    @Override
+    public void doSave() {
+        String picturePath = picturePathField.getText().trim();
+        String outputPath = outputPathField.getText().trim();
+        String pptFileName = filenameField.getText().trim();
+        String splitTag = splitTagField.getText().trim();
+
+        final ConfigUtil configUtil = ConfigUtil.getInstance();
+
+        configUtil.setPptSetting(SET_KEY_PICTURE_PATH, picturePath);
+        configUtil.setPptSetting(SET_KEY_OUTPUT_PATH, outputPath);
+        configUtil.setPptSetting(SET_KEY_PPT_FILENAME, pptFileName);
+        configUtil.setPptSetting(SET_KEY_SPLIT_TAG, splitTag);
     }
 
 

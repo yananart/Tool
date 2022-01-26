@@ -33,6 +33,8 @@ public class App {
         mainFrame.setContentPane(new MainForm().getMainPanel());
 
         mainFrame.setVisible(true);
+
+        log.info("App [{}] 启动成功 ...", Constants.APP_NAME);
     }
 
 }

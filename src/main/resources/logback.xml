@@ -39,11 +39,4 @@
         <appender-ref ref="FILE"/>
     </root>
 
-    <!-- TODO H5JavaSdk 的日志可以单独配置 -->
-    <!-- name:指定logger名称；level：指定logger的分配级别；additivity(非必须，默认为true)：设置appender叠加性 -->
-    <logger name="com.hundsun.message" level="info" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="FILE"/>
-    </logger>
-
 </configuration>

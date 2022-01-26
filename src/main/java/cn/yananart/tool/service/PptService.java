@@ -17,8 +17,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * PPT
@@ -38,6 +38,11 @@ public class PptService {
      * 幻灯片宽度
      */
     private static final int WIDTH = 1920;
+
+    /**
+     * 图片最高高度
+     */
+    private static final int PIC_MAX_HEIGHT = 800;
 
     private static final PptService INSTANCE = new PptService();
 
@@ -66,6 +71,7 @@ public class PptService {
     public void makePicturePpt(String picturePath, String outputPath, String pptFileName, String splitTag) throws IOException {
         // 所有文件
         List<String> fileNameList = FileUtil.listFileNames(picturePath);
+        CollUtil.sortByPinyin(fileNameList);
         // 图片文件与其映射关系
         Map<String, List<XSLFPictureData>> picFileMap = new TreeMap<>();
 
@@ -140,7 +146,7 @@ public class PptService {
             // 创建幻灯片
             XSLFSlide slide = ppt.createSlide();
 
-            // 文本框 TODO 优化
+            // 文本框
             XSLFTextBox textBox = slide.createTextBox();
             textBox.setAnchor(new Rectangle(60, 50, 1800, 64));
             XSLFTextParagraph textParagraph = textBox.addNewTextParagraph();
@@ -151,7 +157,6 @@ public class PptService {
 
             // 图片处理
             int num = picDataList.size();
-            // TODO if num>3 not support
 
             // 计算图片长宽
             double widthInAvg = BigDecimal.valueOf((WIDTH - 120) - (num - 1) * 60L)
@@ -159,7 +164,7 @@ public class PptService {
                     .setScale(2, RoundingMode.HALF_UP)
                     .doubleValue();
             // 按顺序添加到幻灯片中
-            // TODO 2~3张这个逻辑是可以的 1张就太大了
+            // 1~3张横着的图这个逻辑都还可以 竖着的图会有点丑
             // TODO 4张及以上暂时不考虑 4~6张的后续可以做一些
             for (int index = 0; index < num; index++) {
                 XSLFPictureData pictureData = picDataList.get(index);
@@ -167,16 +172,33 @@ public class PptService {
                 double height = pictureData.getImageDimension().getHeight();
                 double width = pictureData.getImageDimension().getWidth();
 
-                height = BigDecimal.valueOf(height)
+                // 调整后的宽度按计算的平均值
+                int adjustWidth = (int) widthInAvg;
+                // 调整后的高度
+                int adjustHeight = BigDecimal.valueOf(height)
                         .multiply(BigDecimal.valueOf(widthInAvg))
                         .divide(BigDecimal.valueOf(width), RoundingMode.HALF_UP)
-                        .setScale(2, RoundingMode.HALF_UP)
-                        .doubleValue();
+                        .intValue();
+                // 如果高度过高
+                if (adjustHeight > PIC_MAX_HEIGHT) {
+                    // 再次调整 把高度缩放到800
+                    adjustWidth = BigDecimal.valueOf(adjustWidth)
+                            .multiply(BigDecimal.valueOf(PIC_MAX_HEIGHT))
+                            .divide(BigDecimal.valueOf(adjustHeight), RoundingMode.HALF_UP)
+                            .intValue();
+                    adjustHeight = PIC_MAX_HEIGHT;
+                }
 
-                int x = 60 * (index + 1) + (int) (index * widthInAvg);
-                int y = (int) (HEIGHT / 2 - height / 2) + 50;
+                int x = 60 * (index + 1) +
+                        BigDecimal.valueOf(index + 0.5)
+                                .multiply(BigDecimal.valueOf(widthInAvg))
+                                .subtract(BigDecimal.valueOf(adjustWidth)
+                                        .divide(BigDecimal.valueOf(2), RoundingMode.HALF_UP)
+                                )
+                                .intValue();
+                int y = (HEIGHT / 2 - adjustHeight / 2) + 50;
 
-                pictureShape.setAnchor(new Rectangle(x, y, (int) widthInAvg, (int) height));
+                pictureShape.setAnchor(new Rectangle(x, y, adjustWidth, adjustHeight));
             }
         }
 

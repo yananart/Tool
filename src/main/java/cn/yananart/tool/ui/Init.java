@@ -1,6 +1,7 @@
 package cn.yananart.tool.ui;
 
 import cn.yananart.tool.App;
+import cn.yananart.tool.ui.frame.MainFrame;
 import cn.yananart.tool.utils.ConfigUtil;
 import cn.yananart.tool.utils.SystemUtil;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -106,6 +107,15 @@ public class Init {
             // The window is automatically maximized at low resolution
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
+    }
+
+
+    /**
+     * 关闭程序
+     */
+    public static void shutdown() {
+        MainFrame.getInstance().dispose();
+        System.exit(0);
     }
 
 }

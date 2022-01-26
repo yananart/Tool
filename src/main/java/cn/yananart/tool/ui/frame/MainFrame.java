@@ -1,6 +1,8 @@
 package cn.yananart.tool.ui.frame;
 
+import cn.hutool.core.thread.ThreadUtil;
 import cn.yananart.tool.common.Constants;
+import cn.yananart.tool.ui.listener.FrameListener;
 import cn.yananart.tool.utils.UiUtil;
 
 import javax.swing.*;
@@ -35,12 +37,14 @@ public class MainFrame extends JFrame {
     public void init() {
         this.setName(Constants.APP_NAME);
         this.setTitle(Constants.APP_NAME);
-        // TODO 不要使用这个动作 添加一个监听器来实现 在关闭程序前要保持输入项
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.setMinimumSize(new Dimension(1000, 700));
 
         // 调整窗口位置
         UiUtil.adjustWindow(this);
+
+        // 添加窗口监听
+        ThreadUtil.execute(FrameListener::addListeners);
     }
 
 }

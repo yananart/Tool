@@ -5,7 +5,7 @@ import cn.yananart.tool.common.Constants;
 /**
  * 系统
  *
- * @author zhouye25337
+ * @author yananart
  * @date 2022/1/25
  */
 public class SystemUtil {

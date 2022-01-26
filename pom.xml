@@ -118,7 +118,8 @@
                             <organizationUrl>https://yananart.cn</organizationUrl>
                             <organizationEmail>yananart@yananart.cn</organizationEmail>
                             <jreMinVersion>8</jreMinVersion>
-                            <mainClass>com.yananart.ppt.App</mainClass>
+                            <mainClass>cn.yananart.tool.App</mainClass>
+                            <!-- TODO 目前还只能jre8 高版本模块依赖还不知道怎么解决 -->
                             <bundleJre>true</bundleJre>
                             <generateInstaller>false</generateInstaller>
                             <administratorRequired>false</administratorRequired>

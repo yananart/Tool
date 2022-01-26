@@ -7,14 +7,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.yananart.tool.utils.PictureUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import org.apache.poi.sl.usermodel.PictureData;
 import org.apache.poi.util.IOUtils;
 import org.apache.poi.xslf.usermodel.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

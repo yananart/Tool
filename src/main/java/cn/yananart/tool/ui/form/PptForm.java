@@ -263,7 +263,7 @@ public class PptForm implements ConfigSaveAction {
      */
     private void $$$setupUI$$$() {
         pptPanel = new JPanel();
-        pptPanel.setLayout(new GridLayoutManager(6, 7, new Insets(10, 10, 0, 10), -1, -1));
+        pptPanel.setLayout(new GridLayoutManager(7, 7, new Insets(10, 10, 0, 10), -1, -1));
         final JLabel label1 = new JLabel();
         label1.setText("图片目录");
         pptPanel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE,
@@ -294,15 +294,15 @@ public class PptForm implements ConfigSaveAction {
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         doActionButton = new JButton();
         doActionButton.setText("执行生成");
-        pptPanel.add(doActionButton, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_CENTER,
+        pptPanel.add(doActionButton, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_HORIZONTAL,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        pptPanel.add(spacer1, new GridConstraints(4, 5, 1, 1, GridConstraints.ANCHOR_CENTER,
+        pptPanel.add(spacer1, new GridConstraints(5, 5, 1, 1, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        pptPanel.add(scrollPane1, new GridConstraints(5, 0, 1, 7, GridConstraints.ANCHOR_CENTER,
+        pptPanel.add(scrollPane1, new GridConstraints(6, 0, 1, 7, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_BOTH,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0,
@@ -315,7 +315,7 @@ public class PptForm implements ConfigSaveAction {
         loadingPanel = new JPanel();
         loadingPanel.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         loadingPanel.setEnabled(true);
-        pptPanel.add(loadingPanel, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER,
+        pptPanel.add(loadingPanel, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_BOTH,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
                 GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0,
@@ -339,7 +339,7 @@ public class PptForm implements ConfigSaveAction {
         pptPanel.add(label5, new GridConstraints(2, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        pptPanel.add(spacer2, new GridConstraints(4, 3, 1, 1, GridConstraints.ANCHOR_CENTER,
+        pptPanel.add(spacer2, new GridConstraints(5, 3, 1, 1, GridConstraints.ANCHOR_CENTER,
                 GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
         label6.setText("图片名分隔符");
@@ -354,6 +354,13 @@ public class PptForm implements ConfigSaveAction {
         label7.setText("(如图片名称为XX-YYY,取XX开头为一组)");
         pptPanel.add(label7, new GridConstraints(3, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE,
                 GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        compressCheckBox = new JCheckBox();
+        compressCheckBox.setHideActionText(false);
+        compressCheckBox.setText("图片压缩(仅对JPG/PNG图片生效)");
+        pptPanel.add(compressCheckBox, new GridConstraints(4, 1, 1, 4, GridConstraints.ANCHOR_WEST,
+                GridConstraints.FILL_NONE,
+                GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW,
+                GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(picturePathField);
         label2.setLabelFor(outputPathField);
         label4.setLabelFor(filenameField);

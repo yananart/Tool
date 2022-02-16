@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<configuration debug="true" scan="true" scanPeriod="1 seconds">
+<configuration debug="true" scan="false" scanPeriod="1 seconds">
     <!-- 用于指定logger上下文名称，默认为default -->
     <contextName>logback</contextName>
 

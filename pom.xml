@@ -6,7 +6,7 @@
 
     <groupId>cn.yananart</groupId>
     <artifactId>tool</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 
     <properties>
         <my.app.name>Tool</my.app.name>
@@ -15,6 +15,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <poi.version>5.2.0</poi.version>
         <lombok.version>1.18.22</lombok.version>
+        <hutool.version>5.7.20</hutool.version>
+        <thumbnailator.version>0.4.16</thumbnailator.version>
+        <flatlaf.version>2.0.1</flatlaf.version>
+        <forms_rt.version>7.0.3</forms_rt.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <log4j.version>2.17.1</log4j.version>
+        <logback.version>1.2.10</logback.version>
     </properties>
 
     <dependencies>
@@ -33,17 +40,21 @@
         <!-- tool -->
         <dependency>
             <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>5.7.20</version>
+            <artifactId>hutool-core</artifactId>
+            <version>${hutool.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-setting</artifactId>
+            <version>${hutool.version}</version>
         </dependency>
 
         <!-- 图片压缩 -->
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.16</version>
+            <version>${thumbnailator.version}</version>
         </dependency>
-
 
         <!-- lombok -->
         <dependency>
@@ -57,33 +68,33 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
-            <version>2.0.1</version>
+            <version>${flatlaf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.intellij</groupId>
             <artifactId>forms_rt</artifactId>
-            <version>7.0.3</version>
+            <version>${forms_rt.version}</version>
         </dependency>
 
         <!-- logging -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.33</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <!-- poi用了log4j2 -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-to-slf4j</artifactId>
-            <version>2.17.1</version>
+            <version>${log4j.version}</version>
         </dependency>
 
         <!-- 日志实现使用logback -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.10</version>
+            <version>${logback.version}</version>
         </dependency>
 
     </dependencies>

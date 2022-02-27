@@ -247,7 +247,7 @@ public class PptService {
      * @throws IOException IO异常
      */
     private byte[] resizePicture(File file) throws IOException {
-        return PictureUtil.resizeAsJpgImage(file, PIC_MAX_HEIGHT, PIC_MAX_WIDTH);
+        return PictureUtil.resizeAsJpgImage(file, PIC_MAX_HEIGHT * 3, PIC_MAX_WIDTH * 3);
     }
 
 

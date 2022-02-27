@@ -118,8 +118,7 @@ public class PptService {
             String message;
             XSLFPictureData pictureData;
             switch (fileType) {
-                case "jpg":
-                case "jpeg":
+                case "jpg", "jpeg" -> {
                     message = StrUtil.format("读取到 JPG图片 {} <- {}", name, filePath);
                     if (enableReduceSize) {
                         pictureData = ppt.addPicture(resizePicture(file), PictureData.PictureType.JPEG);
@@ -129,8 +128,8 @@ public class PptService {
                     }
                     log.info(message);
                     picDataList.add(pictureData);
-                    break;
-                case "png":
+                }
+                case "png" -> {
                     message = StrUtil.format("读取到 PNG图片 {} <- {}", name, filePath);
                     if (enableReduceSize) {
                         pictureData = ppt.addPicture(resizePicture(file), PictureData.PictureType.JPEG);
@@ -140,27 +139,27 @@ public class PptService {
                     }
                     log.info(message);
                     picDataList.add(pictureData);
-                    break;
-                case "gif":
+                }
+                case "gif" -> {
                     message = StrUtil.format("读取到 GIF图片 {} <- {}", name, filePath);
                     if (enableReduceSize) {
                         message += "，GIF图片不执行压缩";
                     }
                     log.info(message);
                     picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.GIF));
-                    break;
-                case "bmp":
+                }
+                case "bmp" -> {
                     message = StrUtil.format("读取到 BMP图片 {} <- {}", name, filePath);
                     if (enableReduceSize) {
                         message += "，BMP图片不执行压缩";
                     }
                     log.info(message);
                     picDataList.add(ppt.addPicture(FileUtil.file(filePath), PictureData.PictureType.BMP));
-                    break;
-                default:
+                }
+                default -> {
                     message = StrUtil.format("不支持的文件类型 不能识别 {}", filePath);
                     log.warn(message);
-                    break;
+                }
             }
             printLog(message);
         }

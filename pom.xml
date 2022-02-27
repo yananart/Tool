@@ -6,18 +6,18 @@
 
     <groupId>cn.yananart</groupId>
     <artifactId>tool</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
 
     <properties>
         <my.app.name>Tool</my.app.name>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <poi.version>5.2.0</poi.version>
         <lombok.version>1.18.22</lombok.version>
         <hutool.version>5.7.20</hutool.version>
         <thumbnailator.version>0.4.16</thumbnailator.version>
-        <flatlaf.version>2.0.1</flatlaf.version>
+        <flatlaf.version>2.0.2</flatlaf.version>
         <forms_rt.version>7.0.3</forms_rt.version>
         <slf4j.version>1.7.36</slf4j.version>
         <log4j.version>2.17.1</log4j.version>
@@ -68,6 +68,11 @@
         <dependency>
             <groupId>com.formdev</groupId>
             <artifactId>flatlaf</artifactId>
+            <version>${flatlaf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
             <version>${flatlaf.version}</version>
         </dependency>
         <dependency>

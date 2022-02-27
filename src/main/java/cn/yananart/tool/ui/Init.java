@@ -26,69 +26,64 @@ public class Init {
     public static void initTheme() {
         try {
             switch (ConfigUtil.getInstance().getTheme()) {
-                case "System Default":
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    break;
-                case "Flat Light":
+                case "System Default" -> UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                case "Flat Light" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     FlatLightLaf.install();
-                    break;
-                case "Flat IntelliJ":
+                }
+                case "Flat IntelliJ" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     UIManager.setLookAndFeel("com.formdev.flatlaf.FlatIntelliJLaf");
-                    break;
-                case "Flat Dark":
+                }
+                case "Flat Dark" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarkLaf");
-                    break;
-                case "Darcula":
-                case "Darcula(Recommended)":
-                case "Flat Darcula(Recommended)":
+                }
+                case "Darcula", "Darcula(Recommended)", "Flat Darcula(Recommended)" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarculaLaf");
-
                     UIManager.put("PopupMenu.background", UIManager.getColor("Panel.background"));
-                    break;
-                case "Dark purple":
+                }
+                case "Dark purple" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     IntelliJTheme.setup(App.class.getResourceAsStream("/theme/DarkPurple.theme.json"));
-                    break;
-                case "IntelliJ Cyan":
+                }
+                case "IntelliJ Cyan" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     IntelliJTheme.setup(App.class.getResourceAsStream("/theme/Cyan.theme.json"));
-                    break;
-                case "IntelliJ Light":
+                }
+                case "IntelliJ Light" -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     IntelliJTheme.setup(App.class.getResourceAsStream("/theme/Light.theme.json"));
-                    break;
-
-                default:
+                }
+                default -> {
                     if (SystemUtil.isJBR()) {
                         JFrame.setDefaultLookAndFeelDecorated(true);
                         JDialog.setDefaultLookAndFeelDecorated(true);
                     }
                     UIManager.setLookAndFeel("com.formdev.flatlaf.FlatDarculaLaf");
+                }
             }
         } catch (Exception e) {
             log.error("init theme error", e);
@@ -108,14 +103,4 @@ public class Init {
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         }
     }
-
-
-    /**
-     * 关闭程序
-     */
-    public static void shutdown() {
-        MainFrame.getInstance().dispose();
-        System.exit(0);
-    }
-
 }

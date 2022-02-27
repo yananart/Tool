@@ -5,6 +5,7 @@ import cn.yananart.tool.ui.Init;
 import cn.yananart.tool.ui.form.LoadingForm;
 import cn.yananart.tool.ui.form.MainForm;
 import cn.yananart.tool.ui.frame.MainFrame;
+import cn.yananart.tool.utils.SystemUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -25,6 +26,7 @@ public class App {
      */
     public static void main(String[] args) {
         log.info("App [{}] 启动 ...", Constants.APP_NAME);
+        SystemUtil.setSystemMenuForMac();
 
         Init.initTheme();
 
@@ -48,4 +50,13 @@ public class App {
         log.info("App [{}] 启动成功 ...", Constants.APP_NAME);
     }
 
+
+    /**
+     * 关闭程序
+     */
+    public static void shutdown() {
+        MainFrame.getInstance().dispose();
+        log.info("App [{}] 退出 ...", Constants.APP_NAME);
+        System.exit(0);
+    }
 }

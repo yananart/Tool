@@ -1,7 +1,7 @@
 package cn.yananart.tool.ui.listener;
 
+import cn.yananart.tool.App;
 import cn.yananart.tool.common.Constants;
-import cn.yananart.tool.ui.Init;
 import cn.yananart.tool.ui.frame.MainFrame;
 import cn.yananart.tool.utils.ConfigUtil;
 import com.formdev.flatlaf.util.SystemInfo;
@@ -57,7 +57,7 @@ public class FrameListener {
                 ConfigUtil.getInstance().save();
                 log.info("关闭应用 [{}]", Constants.APP_NAME);
                 // 关闭程序
-                Init.shutdown();
+                App.shutdown();
             }
 
             @Override

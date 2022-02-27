@@ -3,6 +3,7 @@ package cn.yananart.tool.ui.frame;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.yananart.tool.common.Constants;
 import cn.yananart.tool.ui.listener.FrameListener;
+import cn.yananart.tool.ui.menu.TopMenuBar;
 import cn.yananart.tool.utils.UiUtil;
 
 import javax.swing.*;
@@ -39,6 +40,10 @@ public class MainFrame extends JFrame {
         this.setTitle(Constants.APP_NAME);
         this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.setMinimumSize(new Dimension(1000, 700));
+
+        TopMenuBar menuBar = TopMenuBar.getInstance();
+        menuBar.init();
+        this.setJMenuBar(menuBar);
 
         // 调整窗口位置
         UiUtil.adjustWindow(this);

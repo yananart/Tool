@@ -101,7 +101,7 @@ public class PptService {
 
             // 查看文件有没有分隔符号
             if (StrUtil.isNotBlank(splitTag) && name.contains(splitTag)) {
-                name = name.split(splitTag)[0].trim();
+                name = name.substring(0, name.lastIndexOf(splitTag)).trim();
             }
 
             // 全路径

@@ -6,7 +6,7 @@
 
     <groupId>cn.yananart</groupId>
     <artifactId>tool</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 
     <properties>
         <my.app.name>Tool</my.app.name>

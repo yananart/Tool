@@ -27,6 +27,9 @@ public class SystemUtil {
      */
     public static void setSystemMenuForMac() {
         if (SystemInfo.isMacOS) {
+            // 文件选择器可选择文件夹
+            System.setProperty("apple.awt.fileDialogForDirectories", "true");
+
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("apple.awt.application.name", Constants.APP_NAME);
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", Constants.APP_NAME);

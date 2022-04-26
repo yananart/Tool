@@ -5,12 +5,12 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.yananart.tool.App;
 import cn.yananart.tool.common.Constants;
 import cn.yananart.tool.config.ConfigSaveAction;
 import cn.yananart.tool.service.PptService;
 import cn.yananart.tool.ui.frame.MainFrame;
 import cn.yananart.tool.utils.ConfigUtil;
+import com.formdev.flatlaf.util.SystemInfo;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -86,9 +86,14 @@ public class PptForm implements ConfigSaveAction {
     /**
      * 文件选择 图片文件夹
      */
+    private final JFileChooser pictureChooser;
     private final FileDialog pictureFileDialog;
 
 
+    /**
+     * 文件选择 输出文件夹
+     */
+    private final JFileChooser outputChooser;
     private final FileDialog outputFileDialog;
 
     /* 配置参数键 */
@@ -100,13 +105,25 @@ public class PptForm implements ConfigSaveAction {
 
 
     public PptForm() {
-        pictureFileDialog = new FileDialog(MainFrame.getInstance());
-        pictureFileDialog.setMode(FileDialog.LOAD);
-        pictureFileDialog.setTitle("选择图片文件路径");
+        if (SystemInfo.isMacOS) {
+            pictureChooser = null;
+            pictureFileDialog = new FileDialog(MainFrame.getInstance());
+            pictureFileDialog.setMode(FileDialog.LOAD);
+            pictureFileDialog.setTitle("选择图片文件路径");
 
-        outputFileDialog = new FileDialog(MainFrame.getInstance());
-        outputFileDialog.setMode(FileDialog.LOAD);
-        outputFileDialog.setTitle("选择输出文件路径");
+            outputChooser = null;
+            outputFileDialog = new FileDialog(MainFrame.getInstance());
+            outputFileDialog.setMode(FileDialog.SAVE);
+            outputFileDialog.setTitle("选择输出文件路径");
+        } else {
+            pictureChooser = new JFileChooser();
+            pictureChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            pictureFileDialog = null;
+            outputChooser = new JFileChooser();
+            outputChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            outputFileDialog = null;
+        }
+
 
         init();
     }
@@ -137,17 +154,21 @@ public class PptForm implements ConfigSaveAction {
         picturePathField.setText(picturePath);
         if (StrUtil.isNotBlank(picturePath) && FileUtil.exist(picturePath) && FileUtil.isDirectory(picturePath)) {
             // 必须在UI线程更新
-            SwingUtilities.invokeLater(() -> pictureFileDialog.setDirectory(picturePath));
+            if (SystemInfo.isMacOS) SwingUtilities.invokeLater(() -> pictureFileDialog.setDirectory(picturePath));
+            else SwingUtilities.invokeLater(() -> pictureChooser.setCurrentDirectory(FileUtil.file(picturePath)));
         } else {
-            SwingUtilities.invokeLater(() -> pictureFileDialog.setDirectory(Constants.USER_HOME));
+            if (SystemInfo.isMacOS)
+                SwingUtilities.invokeLater(() -> pictureFileDialog.setDirectory(Constants.USER_HOME));
         }
         String outputPath = configUtil.getPptSetting(SET_KEY_OUTPUT_PATH, "");
         outputPathField.setText(outputPath);
         if (StrUtil.isNotBlank(outputPath) && FileUtil.exist(outputPath) && FileUtil.isDirectory(outputPath)) {
             // 必须在UI线程更新
-            SwingUtilities.invokeLater(() -> outputFileDialog.setDirectory(outputPath));
+            if (SystemInfo.isMacOS) SwingUtilities.invokeLater(() -> outputFileDialog.setDirectory(outputPath));
+            else SwingUtilities.invokeLater(() -> outputChooser.setCurrentDirectory(FileUtil.file(outputPath)));
         } else {
-            SwingUtilities.invokeLater(() -> outputFileDialog.setDirectory(Constants.USER_HOME));
+            if (SystemInfo.isMacOS)
+                SwingUtilities.invokeLater(() -> outputFileDialog.setDirectory(Constants.USER_HOME));
         }
         filenameField.setText(configUtil.getPptSetting(SET_KEY_PPT_FILENAME, ""));
         splitTagField.setText(configUtil.getPptSetting(SET_KEY_SPLIT_TAG, "-"));
@@ -164,24 +185,38 @@ public class PptForm implements ConfigSaveAction {
      */
     public void addActionListener() {
         selectPicturePath.addActionListener(action -> {
-            pictureFileDialog.setVisible(true);
-            var path = pictureFileDialog.getDirectory();
-            var name = pictureFileDialog.getFile();
-            if (StrUtil.isNotBlank(path) && StrUtil.isNotBlank(name)) {
-                if (FileUtil.isDirectory(path + name))
-                    picturePathField.setText(path + name);
-                else picturePathField.setText(path);
+            if (SystemInfo.isMacOS) {
+                pictureFileDialog.setVisible(true);
+                var path = pictureFileDialog.getDirectory();
+                var name = pictureFileDialog.getFile();
+                if (StrUtil.isNotBlank(path) && StrUtil.isNotBlank(name)) {
+                    if (FileUtil.isDirectory(path + name)) picturePathField.setText(path + name);
+                    else picturePathField.setText(path);
+                }
+            } else {
+                int status = pictureChooser.showOpenDialog(PptForm.this.pptPanel);
+                if (status == JFileChooser.APPROVE_OPTION) {
+                    File file = pictureChooser.getSelectedFile();
+                    picturePathField.setText(file.getAbsolutePath());
+                }
             }
         });
 
         selectOutputPath.addActionListener(action -> {
-            outputFileDialog.setVisible(true);
-            var path = outputFileDialog.getDirectory();
-            var name = outputFileDialog.getFile();
-            if (StrUtil.isNotBlank(path) && StrUtil.isNotBlank(name)) {
-                if (FileUtil.isDirectory(path + name))
-                    outputPathField.setText(path + name);
-                else outputPathField.setText(path);
+            if (SystemInfo.isMacOS) {
+                outputFileDialog.setVisible(true);
+                var path = outputFileDialog.getDirectory();
+                var name = outputFileDialog.getFile();
+                if (StrUtil.isNotBlank(path) && StrUtil.isNotBlank(name)) {
+                    if (FileUtil.isDirectory(path + name)) outputPathField.setText(path + name);
+                    else outputPathField.setText(path);
+                }
+            } else {
+                int status = outputChooser.showOpenDialog(PptForm.this.pptPanel);
+                if (status == JFileChooser.APPROVE_OPTION) {
+                    File file = outputChooser.getSelectedFile();
+                    outputPathField.setText(file.getAbsolutePath());
+                }
             }
         });
 
